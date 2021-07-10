@@ -35,6 +35,11 @@ Many example plots are [here](https://github.com/svdhoog/FLAViz/tree/master/docs
  
 To get started immediately, you can run the library out-of-the-box using the [test data](https://github.com/svdhoog/FLAViz/tree/master/data/visualisation). Instructions on how to do this can be found in the section on Testing in the [tutorial](https://github.com/svdhoog/FLAViz/tree/master/docs/visualisation_scripts/readme.rst).
 
+Test data
+--
+
+A simple model with test data is provided in the folder [circles model](https://github.com/svdhoog/FLAViz/tree/master/data/visualisation/models/circle). A description is in the [readme file](https://github.com/svdhoog/FLAViz/tree/master/data/visualisation/models/circle/readme.rst).
+
 
 Requirements:
 --
@@ -49,7 +54,7 @@ For the FLAViz visualization scripts:
 * python3-numexp (>= 2.6)
 * python3-numpy (>= 1.14.3)
 * python3-pandas (0.22.0 or >= 0.19.0)
-* python3-pyTables (>= 3.4) -- currently used for HDF5 files, write-once, non-appendable
+* python3-pyTables (>= 3.4) -- currently used for HDF5 files, using the 'tables' format (slower than 'fixed' format, but allows for appendable HDFStores)
 * python3-scipy (1.1.0)
 * python3-tk (>= 3.4.3)
 * python3-yaml (>= 3.12)
@@ -108,7 +113,25 @@ where `config` is the path to the config folder containing the configuration fil
 * plot_config.yaml
 * config_transform.yaml [optional]
 
-For more information please use the `docs/` folder.
+For more information please see the `docs/` folder.
 
-------------------------------------
-2018-05-29 11:00 svdh
+
+Contributors
+------------
+  - [Sander van der Hoog](https://github.com/svdhoog)
+  - [Krishna Raj Devkota](https://github.com/krdevkota)
+  - [Fabian Herrmann](https://github.com/0xfabi)
+
+Contributing
+------------
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+Copyright
+---------
+
+Copyright (c) 2018 Sander van der Hoog. See LICENSE for further details.

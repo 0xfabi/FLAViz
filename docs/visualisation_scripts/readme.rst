@@ -21,11 +21,11 @@ Note: Further details on how to use the config (yaml) files can be found on the 
 Testing
 =======
 
-To run the module, simply use:
+To run the module, use:
 
-   $ python /src/visualisation_scripts/main.py config-path
+   $ python3 /src/visualisation_scripts/main.py -p config-path
 
-where, config-path is the path to the folder containing the yaml files (in this git repository's folder structure it is ``FLAViz/src/visualisation_scripts/config/``)
+where config-path is the path to the folder containing the yaml files (in this git repository's folder structure it is ``FLAViz/src/visualisation_scripts/config/``)
 
 Note: The module has only been tested under Unix/ Unix-like systems. It has not been tested for Windows and therefore
 there is no guarentee of proper execution for such systems.
@@ -37,7 +37,7 @@ Once the necessary parameters are set, by following the instructions specified i
 the parameters of the configuration files are shown below, along with the plots they yield.
 
 
-Using the test_data_., and the following config settings, the following plots can be produced.
+Using the test_data_, and the following config settings, the following plots can be produced.
 
 .. _test_data: https://github.com/svdhoog/FLAViz/tree/master/data/visualisation
 

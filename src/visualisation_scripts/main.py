@@ -17,10 +17,16 @@ def erf(msg):  # function to output the error message and exit
 def dir_check(d):
     if os.path.exists(d):
         print("- Directory ["+os.path.basename(d)+ "] is used for output files")
+        #test
+        if args.verbose:
+            print("os.path.basename(d)="+os.path.basename(d))
 
     else:
         os.makedirs(d)
         print("- Directory ["+os.path.basename(d)+ "] was created and is used for output files")
+        #test
+        if args.verbose:
+            print("os.path.basename(d)="+os.path.basename(d))
 
 
 def process_hdf_keys(string_in):  # function to extract set and run values from set_*_run_* string
@@ -120,37 +126,88 @@ def progress_bar(name, iteration, total, barLength=20):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(prog='main.py', description='Visualise and transform various time-series data.')
-    parser.add_argument('--configpath', '-p', help='Path to folder containing the configuration (.yaml) files', nargs=1, type=str, required=True)
+    parser = argparse.ArgumentParser(prog='main.py', description='FLAViz: Visualization and data transformation of timeseries data of agent-based models.')
+    parser.add_argument('--configpath', '-p', help='Path to folder that contains the configuration (.yaml) files (config.yaml, plot_config.yaml)', nargs=1, type=str, required=True)
     parser.add_argument('--verbose', '-v', help='Activate the verbose mode which contains tracking steps and progress', required=False, action='store_false')
     args = parser.parse_args()
     P = main_configuration(args.configpath[0])  # instantiate main_configuration class to process main yaml files
     inpath = P.input_fpath()
     infiles = P.input_files()
+    
+    #test
+    #if args.verbose:
+    # print("\nPrint (main.py):")
+    # print("\n inpath="+inpath)
+    # print("\n infiles=")
+    # print(infiles)   
+    # print("\n")
+    #print("\n outpath=")
+    #print(outpath)
+
     primary_parameters = P.get_parameters()
     agent_storelist = {}  # all the agent HDF files are stored in this dict
     index = 0
     for key, value in infiles.items():
         f_p = str(inpath) + "/" + str(value)
-        agent_storelist[key] = pd.io.pytables.HDFStore(f_p)
+        #agent_storelist[key] = pd.io.pytables.HDFStore(f_p)
+        agent_storelist[key] = pd.io.pytables.HDFStore(f_p,  mode='r') # Is read-only mode needed here?
         # print a progressbar if verbose mode is activated
         if not args.verbose:
             index+=1
-            progress_bar("Step1: Preparing data structure ", index, len(infiles.items()))
+            progress_bar("Step 1: Preparing data structure ", index, len(infiles.items()))
     if not args.verbose:
         sys.stdout.write("\n")
     agent_dframes = {}  # All the main dataframes of different agenttypes are stored in this dict
 
     index = 0
+
+    #test
+    #print('\nPrint (main.py): agent_storelist.items()') #prints contents summary of h5 files
+    #print(agent_storelist.items())
+        
     for agentname, agentstore in agent_storelist.items():
+        
+        #test
+        #print("\nPrint (main.py): agentname="+agentname)
+        #print(agentname)
+                
         d = pd.DataFrame()  # Main dataframe to hold all the dataframes of each instance (one agenttype)
         df_list = []
+        
+        #test
+        #print('\nPrint (main.py): agentstore.keys()')
+        #print(agentstore.keys())
+        
         for key in agentstore.keys():  # go through sets and runs in the HDF file
             sets_runs = process_hdf_keys(key)  # get set and run values from the names: set_1_run_1_iters etc. hardcoded for set_*_run_*_iters atm
+
+            ##test
+            # print('\nPrint (main.py): sets_runs')
+            # print('key='+key)
+            # print('process_hdf_keys(key)=')
+            # print(process_hdf_keys(key))
+            # print('sets_runs=')
+            # print(sets_runs)    #prints set nos. and contents summary of hdf5
+            # print('sets_runs[0]= '+str(sets_runs[0])) #prints set nos.
+            # print('sets_runs[1]= '+str(sets_runs[1]))  #prints content summary of hdf5
+
             s = sets_runs[0]
             r = sets_runs[1]
-            pnl = agentstore.select(key)  # open datapanel for particular set and run
-            df = pnl.to_frame()  # convert panel to Dataframe
+            #pnl = agentstore.select(key)  # open datapanel for particular set and run
+            df = agentstore.select(key)  # open datapanel for particular set and run
+
+            #test
+            #print('\nPrint (main.py): pnl')
+            #print(pnl)
+            #print(pnl.shape)            
+            
+            #df = pnl.to_frame()  # convert panel to Dataframe
+
+            #test
+            #print('\nPrint (main.py): df')
+            #print(df)
+            #print(df.shape)            
+
             # Add two columns for set and run into the dataframe for two added level of indexing
             df['set'] = s
             df['run'] = r
@@ -158,15 +215,25 @@ if __name__ == "__main__":
             df.set_index('set', append=True, inplace=True)
             df_list.append(df.reorder_levels(['set', 'run', 'major', 'minor']))
 
+        #test
+        #print('\nPrint (main.py): df_list')
+        #print(df_list)
+        
+        
         d = pd.concat(df_list)  # Add each dataframe from panel into a main dataframe containing all sets and runs
         del df_list
         agent_dframes[agentname] = d  # this dict contains agent-type names as keys, and the corresponding dataframes as values
         agentstore.close()
 
+        #test
+        #print('\nPrint (main.py): d')
+        #print(d)
+        #print(agent_dframes[agentname])
+
         # print a progressbar if verbose mode is activated
         if not args.verbose:
             index += 1
-            progress_bar("Step2: Processing data file " , index, len(agent_storelist.items()))
+            progress_bar("Step 2: Processing data file " , index, len(agent_storelist.items()))
     if not args.verbose:
         sys.stdout.write("\n")
     del agent_storelist
@@ -186,15 +253,27 @@ if __name__ == "__main__":
             else:
                 var_dic[j[0]] = None
             var_list = list(var_dic.keys())
-        d = agent_dframes[param['agent']]  # comment: this can be replaced in line below to save memory, here now just for simplicity
 
+
+        ##memory-heavy version        
+        #d = agent_dframes[param['agent']]  # comment: this can be replaced in line below to save memory, here now just for simplicity. See memory-saving version
+
+        ## check if table columns contain the given variables from config file
+        #for i, entry in enumerate(var_list):
+        #    if not (entry in list(d)):
+        #        erf("Table has columns {0} and var{1}='{2}' does not match.".format(list(d), i+1, entry))
+
+        ## stage-I filtering, all input vars are sliced with desired set & run values
+        #filtered = d.iloc[(d.index.get_level_values('set').isin(param['set'])) & (d.index.get_level_values('run').isin(param['run'])) & (d.index.get_level_values('major').isin(param['major'])) & (d.index.get_level_values('minor').isin(param['minor']))][var_list].dropna().astype(float)
+
+        ##memory-saving version
         # check if table columns contain the given variables from config file
         for i, entry in enumerate(var_list):
-            if not (entry in list(d)):
-                erf("Table has columns {0} and var{1}='{2}' does not match.".format(list(d), i+1, entry))
+            if not (entry in list(agent_dframes[param['agent']])):
+                erf("Table has columns {0} and var{1}='{2}' does not match.".format(list(agent_dframes[param['agent']]), i+1, entry))
 
         # stage-I filtering, all input vars are sliced with desired set & run values
-        filtered = d.iloc[(d.index.get_level_values('set').isin(param['set'])) & (d.index.get_level_values('run').isin(param['run'])) & (d.index.get_level_values('major').isin(param['major'])) & (d.index.get_level_values('minor').isin(param['minor']))][var_list].dropna().astype(float)
+        filtered = agent_dframes[param['agent']].iloc[(agent_dframes[param['agent']].index.get_level_values('set').isin(param['set'])) & (agent_dframes[param['agent']].index.get_level_values('run').isin(param['run'])) & (agent_dframes[param['agent']].index.get_level_values('major').isin(param['major'])) & (agent_dframes[param['agent']].index.get_level_values('minor').isin(param['minor']))][var_list].dropna().astype(float)
 
         df_main = pd.DataFrame()
         index1 = 0
@@ -209,7 +288,7 @@ if __name__ == "__main__":
             # print a progressbar if verbose mode is activated
             if not args.verbose:
                 index1 += 1
-                progress_bar("Step3: Filtering/Plotting data for: {0} ".format(idx), index1, len(var_dic.items()))
+                progress_bar("Step 3: Filtering/Plotting data for: {0} ".format(idx), index1, len(var_dic.items()))
         if not args.verbose:
             sys.stdout.write("\n")
         summary_and_plot(idx, P, df_main, args.configpath[0])  # plot index, parameter object, data, parameter_filepath

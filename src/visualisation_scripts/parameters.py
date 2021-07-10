@@ -25,8 +25,6 @@ class NP:
 class main_configuration():
 
     def __init__(self, in_fpath):
-
-#        self.main_f = in_fpath + '/main.yaml' # the main configuration file
         self.main_f = in_fpath + '/config.yaml' # the main configuration file
         self.parsed_values = self.parse_yaml(self.main_f)
 
@@ -41,7 +39,7 @@ class main_configuration():
             self.erf("unable to read file: %s" % fname)
         with f as stream:
             try:
-                p = yaml.load(stream)
+                p = yaml.load(stream, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:  # error-check for incorrect yaml syntax
                 if hasattr(exc, 'problem_mark'):
                     mark = exc.problem_mark
@@ -127,7 +125,7 @@ class transform_configuration():
 
     def __init__(self, in_fpath):
 
-        self.transform_f = in_fpath + '/config_transform.yaml' # the main configuration file
+        self.transform_f = in_fpath + '/config_transform.yaml' # the configuration file for variable transformations
         self.parsed_values = self.parse_yaml(self.transform_f)
 
     def erf(self, msg):  # function to output the error message and exit
@@ -141,7 +139,7 @@ class transform_configuration():
             self.erf("unable to read file: %s" % fname)
         with f as stream:
             try:
-                p = yaml.load(stream)
+                p = yaml.load(stream, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:  # error-check for incorrect yaml syntax
                 if hasattr(exc, 'problem_mark'):
                     mark = exc.problem_mark
@@ -160,10 +158,8 @@ class Plot_configuration():
 
     def __init__(self, p_fpath):
 
-        self.plot_f = p_fpath + '/plot_config.yaml'
+        self.plot_f = p_fpath + '/plot_config.yaml' # the configuration file for plot options (matplotlib) 
         self.__param = self.parse_yaml(self.plot_f)
-
-
         self.__default_plot_parameters = Figure_default_parameters()
 
     def erf(self, msg):
@@ -184,7 +180,7 @@ class Plot_configuration():
             self.erf("unable to read file: %s" % fname)
         with f as stream:
             try:
-                p = yaml.load(stream)
+                p = yaml.load(stream, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:  # error-check for incorrect yaml syntax
                 if hasattr(exc, 'problem_mark'):
                     mark = exc.problem_mark
@@ -219,15 +215,15 @@ class Plot_configuration():
             return self.__param[key]['number_plots']
         return self.__default_plot_parameters.__dict__['number_plots']
 
-    def y_label(self, key):
-        if 'yaxis_label' in self.__param[key].keys():
-            return self.__param[key]['yaxis_label']
-        return self.__default_plot_parameters.__dict__['yaxis_label']
+    def ylabel(self, key):
+        if 'ylabel' in self.__param[key].keys():
+            return self.__param[key]['ylabel']
+        return self.__default_plot_parameters.__dict__['ylabel']
 
-    def x_label(self, key):
-        if 'xaxis_label' in self.__param[key].keys():
-            return self.__param[key]['xaxis_label']
-        return self.__default_plot_parameters.__dict__['xaxis_label']
+    def xlabel(self, key):
+        if 'xlabel' in self.__param[key].keys():
+            return self.__param[key]['xlabel']
+        return self.__default_plot_parameters.__dict__['xlabel']
 
     def plot_title(self, key):
         if 'plot_title' in self.__param[key].keys():
@@ -244,15 +240,25 @@ class Plot_configuration():
             return self.__param[key]['plot_format']
         return self.__default_plot_parameters.__dict__['plot_format']
 
-    def llim(self, key):
-        if 'l_lim' in self.__param[key].keys():
-            return self.__param[key]['l_lim']
-        return self.__default_plot_parameters.__dict__['l_lim']
+    def xmin(self, key):
+        if 'xmin' in self.__param[key].keys():
+            return self.__param[key]['xmin']
+        return self.__default_plot_parameters.__dict__['xmin']
 
-    def ulim(self, key):
-        if 'u_lim' in self.__param[key].keys():
-            return self.__param[key]['u_lim']
-        return self.__default_plot_parameters.__dict__['u_lim']
+    def xmax(self, key):
+        if 'xmax' in self.__param[key].keys():
+            return self.__param[key]['xmax']
+        return self.__default_plot_parameters.__dict__['xmax']
+
+    def ymin(self, key):
+        if 'ymin' in self.__param[key].keys():
+            return self.__param[key]['ymin']
+        return self.__default_plot_parameters.__dict__['ymin']
+
+    def ymax(self, key):
+        if 'ymax' in self.__param[key].keys():
+            return self.__param[key]['ymax']
+        return self.__default_plot_parameters.__dict__['ymax']
 
     def linestyle(self, key):
         if 'linestyle' in self.__param[key].keys():
@@ -280,9 +286,9 @@ class Plot_configuration():
         return self.__default_plot_parameters.__dict__['facecolors']
 
     def bins(self, key):
-        if 'number_bins' in self.__param[key].keys():
-            return self.__param[key]['number_bins']
-        return self.__default_plot_parameters.__dict__['number_bins']
+        if 'bins' in self.__param[key].keys():
+            return self.__param[key]['bins']
+        return self.__default_plot_parameters.__dict__['bins']
 
     def histtype(self, key):
         if 'histtype' in self.__param[key].keys():
@@ -294,7 +300,7 @@ class Plot_configuration():
             return self.__param[key]['stacked']
         return self.__default_plot_parameters.__dict__['stacked']
 
-    def norm(self, key):
+    def normed(self, key):
         if 'normed' in self.__param[key].keys():
             return self.__param[key]['normed']
         return self.__default_plot_parameters.__dict__['normed']
@@ -314,11 +320,6 @@ class Plot_configuration():
             return self.__param[key]['greyscale']
         return self.__default_plot_parameters.__dict__['greyscale']
 
-    def numboxplotbars(self, key):
-        if 'number_bars' in self.__param[key].keys():
-            return self.__param[key]['number_bars']
-        return self.__default_plot_parameters.__dict__['number_bars']
-
 
 class Figure_default_parameters(object):
     def __init__(self):
@@ -329,24 +330,25 @@ class Figure_default_parameters(object):
         self.number_plots = 'many'
         self.plot_name = None
         self.plot_format = 'png'
-        self.l_lim = None
-        self.u_lim = None
+        self.xmin = None
+        self.xmax = None
+        self.ymin = None
+        self.ymax = None
         self.linestyle = 'solid'
         self.marker = 4
         self.markerfacecolor = None
         self.markersize = None
         self.facecolors = None
         self.plot_title = None
-        self.xaxis_label = None
-        self.yaxis_label = None
-        self.number_bins = 50
+        self.xlabel = None
+        self.ylabel = None
+        self.bins = 50
         self.histtype = 'bar'
         self.stacked = False
         self.normed = 1
         self.fill_between = False
         self.fillcolor = 'black'
         self.greyscale = False
-        self.number_bars = 5
 
 
 if __name__ == "__main__":
